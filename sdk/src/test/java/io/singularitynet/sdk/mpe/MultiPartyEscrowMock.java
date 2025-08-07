@@ -25,18 +25,22 @@ public class MultiPartyEscrowMock {
     }
 
     public void addPaymentChannel(PaymentChannel paymentChannel) {
-        when(mpe.channels(eq(paymentChannel.getChannelId()))).
-                thenReturn(new RemoteCall<>(() -> {
-                    return new Tuple7<>(paymentChannel.getNonce(),
-                            paymentChannel.getSender().toString(),
-                            paymentChannel.getSigner().toString(),
-                            paymentChannel.getRecipient().toString(),
-                            paymentChannel.getPaymentGroupId().getBytes(),
-                            paymentChannel.getValue(),
-                            paymentChannel.getExpiration());
-                }));
         RemoteFunctionCall<Tuple7<BigInteger, String, String, String, byte[], BigInteger, BigInteger>> remoteCall =
                 mock(RemoteFunctionCall.class);
+        try {
+            when(remoteCall.send()).thenReturn(new Tuple7<>(paymentChannel.getNonce(),
+                    paymentChannel.getSender().toString(),
+                    paymentChannel.getSigner().toString(),
+                    paymentChannel.getRecipient().toString(),
+                    paymentChannel.getPaymentGroupId().getBytes(),
+                    paymentChannel.getValue(),
+                    paymentChannel.getExpiration()));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        when(mpe.channels(eq(paymentChannel.getChannelId()))).
+                thenReturn(remoteCall);
+
 //        try {
 //            when(remoteCall.send()).thenReturn(new Tuple6<>(
 //                    true,

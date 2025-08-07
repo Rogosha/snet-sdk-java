@@ -6,7 +6,6 @@ import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.protocol.exceptions.ClientConnectionException;
 import org.web3j.tx.gas.StaticGasProvider;
-import org.web3j.tx.gas.DefaultGasProvider;
 import org.web3j.tx.RawTransactionManager;
 import org.web3j.tx.TransactionManager;
 import org.slf4j.Logger;

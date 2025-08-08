@@ -1,7 +1,9 @@
 package io.singularitynet.sdk.plugin;
 
 import org.junit.*;
+
 import static org.junit.Assert.*;
+
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.ExpectedException;
 
@@ -14,11 +16,11 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.List;
+
 import io.ipfs.api.IPFS;
 import io.ipfs.multihash.Multihash;
 import org.web3j.protocol.core.RemoteCall;
+import org.web3j.protocol.core.RemoteFunctionCall;
 import org.web3j.tuples.generated.Tuple3;
 
 import io.singularitynet.sdk.common.Utils;
@@ -39,22 +41,28 @@ public class ServiceApiGetterTest {
 
     @Before
     public void setUp() throws IOException {
+        RemoteFunctionCall<Tuple3<Boolean, byte[], byte[]>> remoteCall = mock(RemoteFunctionCall.class);
+        try {
+            when(remoteCall.send()).thenReturn(new Tuple3<>(
+                    true,
+                    Utils.strToBytes32(SERVICE_ID),
+                    Utils.strToBytes("ipfs://" + METADATA_HASH))
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
         registry = mock(Registry.class);
         when(registry.getServiceRegistrationById(
-                    eq(Utils.strToBytes32(ORG_ID)),
-                    eq(Utils.strToBytes32(SERVICE_ID))))
-            .thenReturn(new RemoteCall<>(
-                        () -> {
-                            return new Tuple3<>(true,
-                                    Utils.strToBytes32(SERVICE_ID),
-                                    Utils.strToBytes("ipfs://" + METADATA_HASH));
-                        }));
+                eq(Utils.strToBytes32(ORG_ID)),
+                eq(Utils.strToBytes32(SERVICE_ID))))
+                .thenReturn(remoteCall);
 
         ipfs = mock(IPFS.class);
         when(ipfs.cat(eq(Multihash.fromBase58(METADATA_HASH))))
-            .thenReturn(readResource("/example-service-metadata.json"));
+                .thenReturn(readResource("/example-service-metadata.json"));
         when(ipfs.cat(eq(Multihash.fromBase58(MODEL_IPFS_HASH))))
-            .thenReturn(readResource("/example-service-model.tar"));
+                .thenReturn(readResource("/example-service-model.tar"));
     }
 
     private static byte[] readResource(String name) {
@@ -81,11 +89,25 @@ public class ServiceApiGetterTest {
     public void getServiceApi() throws IOException, PluginException {
         File outputDir = testFolder.newFolder("output");
         ServiceApiGetter.Parameters params = new ServiceApiGetter.DefaultParameters() {
-            public String getOrgId() { return ORG_ID; }
-            public String getServiceId() { return SERVICE_ID; }
-            public File getOutputDir() { return outputDir; }
-            public String getJavaPackage() { return "org.example.exampleservice"; }
-            public URL getEthereumJsonRpcEndpoint() { return Utils.wrapExceptions(() -> new URL("http://localhost:8545")); }
+            public String getOrgId() {
+                return ORG_ID;
+            }
+
+            public String getServiceId() {
+                return SERVICE_ID;
+            }
+
+            public File getOutputDir() {
+                return outputDir;
+            }
+
+            public String getJavaPackage() {
+                return "org.example.exampleservice";
+            }
+
+            public URL getEthereumJsonRpcEndpoint() {
+                return Utils.wrapExceptions(() -> new URL("http://localhost:8545"));
+            }
         };
         ServiceApiGetter getter = new ServiceApiGetter(registry, ipfs, params);
 
@@ -104,11 +126,23 @@ public class ServiceApiGetterTest {
         exceptionRule.expect(PluginException.class);
         exceptionRule.expectMessage("Could not perform operation on Ethereum RPC endpoint provided: http://localhost:1");
         ServiceApiGetter.Parameters params = new ServiceApiGetter.DefaultParameters() {
-            public String getOrgId() { return ORG_ID; }
-            public String getServiceId() { return SERVICE_ID; }
-            public File getOutputDir() { return null; }
-            public String getJavaPackage() { return "org.example.exampleservice"; }
-            public URL getEthereumJsonRpcEndpoint() { 
+            public String getOrgId() {
+                return ORG_ID;
+            }
+
+            public String getServiceId() {
+                return SERVICE_ID;
+            }
+
+            public File getOutputDir() {
+                return null;
+            }
+
+            public String getJavaPackage() {
+                return "org.example.exampleservice";
+            }
+
+            public URL getEthereumJsonRpcEndpoint() {
                 try {
                     return new URL("http://localhost:1");
                 } catch (MalformedURLException e) {

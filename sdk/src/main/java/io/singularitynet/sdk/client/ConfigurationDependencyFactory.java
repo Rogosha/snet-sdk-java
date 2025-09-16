@@ -14,15 +14,13 @@ import io.ipfs.api.IPFS;
 
 import io.singularitynet.sdk.common.Preconditions;
 import io.singularitynet.sdk.common.Utils;
-import io.singularitynet.sdk.contracts.Registry;
 import io.singularitynet.sdk.contracts.MultiPartyEscrow;
+import io.singularitynet.sdk.contracts.Registry;
 import io.singularitynet.sdk.ethereum.Address;
 import io.singularitynet.sdk.ethereum.ContractUtils;
 import io.singularitynet.sdk.ethereum.Identity;
 import io.singularitynet.sdk.ethereum.MnemonicIdentity;
 import io.singularitynet.sdk.ethereum.PrivateKeyIdentity;
-import io.singularitynet.sdk.contracts.Registry;
-import io.singularitynet.sdk.contracts.MultiPartyEscrow;
 
 /**
  * Bootstraps SDK dependencies from configuration.

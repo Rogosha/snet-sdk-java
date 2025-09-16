@@ -2,11 +2,12 @@ package io.singularitynet.sdk.registry;
 
 import org.web3j.protocol.core.*;
 import org.web3j.tuples.generated.*;
-import io.singularitynet.sdk.contracts.Registry;
+
 import static org.mockito.Mockito.*;
 import static java.util.stream.Collectors.toList;
 import java.util.Collections;
 import java.util.List;
+import io.singularitynet.sdk.contracts.Registry;
 
 import io.singularitynet.sdk.common.Utils;
 

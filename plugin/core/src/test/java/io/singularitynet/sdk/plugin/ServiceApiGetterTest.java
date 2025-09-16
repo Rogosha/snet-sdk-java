@@ -1,13 +1,14 @@
 package io.singularitynet.sdk.plugin;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.io.TempDir;
 
-import static org.junit.Assert.*;
-
-import org.junit.rules.TemporaryFolder;
-import org.junit.rules.ExpectedException;
-
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+
+
+import io.singularitynet.sdk.contracts.Registry;
+import io.singularitynet.sdk.common.Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,12 +20,9 @@ import java.nio.file.Paths;
 
 import io.ipfs.api.IPFS;
 import io.ipfs.multihash.Multihash;
-import org.web3j.protocol.core.RemoteCall;
 import org.web3j.protocol.core.RemoteFunctionCall;
 import org.web3j.tuples.generated.Tuple3;
 
-import io.singularitynet.sdk.common.Utils;
-import io.singularitynet.sdk.contracts.Registry;
 
 public class ServiceApiGetterTest {
 
@@ -36,10 +34,7 @@ public class ServiceApiGetterTest {
     private Registry registry;
     private IPFS ipfs;
 
-    @Rule
-    public TemporaryFolder testFolder = new TemporaryFolder();
-
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         RemoteFunctionCall<Tuple3<Boolean, byte[], byte[]>> remoteCall = mock(RemoteFunctionCall.class);
         try {
@@ -86,8 +81,7 @@ public class ServiceApiGetterTest {
     }
 
     @Test
-    public void getServiceApi() throws IOException, PluginException {
-        File outputDir = testFolder.newFolder("output");
+    public void getServiceApi(@TempDir File outputDir) throws IOException, PluginException {
         ServiceApiGetter.Parameters params = new ServiceApiGetter.DefaultParameters() {
             public String getOrgId() {
                 return ORG_ID;
@@ -113,18 +107,13 @@ public class ServiceApiGetterTest {
 
         getter.run();
 
-        assertEquals("API Protobuf file",
-                readFileAsString(getResourcePath("/example_service.proto")),
-                readFileAsString(outputDir.toPath().resolve("example_service.proto")));
+        assertEquals(readFileAsString(getResourcePath("/example_service.proto")),
+                readFileAsString(outputDir.toPath().resolve("example_service.proto")),
+                "API Protobuf file");
     }
-
-    @Rule
-    public ExpectedException exceptionRule = ExpectedException.none();
 
     @Test
     public void throwExceptionOnWeb3jClientConnectionError() throws PluginException {
-        exceptionRule.expect(PluginException.class);
-        exceptionRule.expectMessage("Could not perform operation on Ethereum RPC endpoint provided: http://localhost:1");
         ServiceApiGetter.Parameters params = new ServiceApiGetter.DefaultParameters() {
             public String getOrgId() {
                 return ORG_ID;
@@ -152,6 +141,14 @@ public class ServiceApiGetterTest {
         };
         ServiceApiGetter getter = new ServiceApiGetter(null, null, params);
 
-        getter.run();
+        PluginException ex = assertThrows(
+                PluginException.class,
+                getter::run
+        );
+
+        assertTrue(ex.getMessage().contains(
+                "Could not perform operation on Ethereum RPC endpoint provided: http://localhost:1"
+        ));
+
     }
 }

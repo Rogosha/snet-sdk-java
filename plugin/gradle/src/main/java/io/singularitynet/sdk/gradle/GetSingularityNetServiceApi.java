@@ -15,7 +15,6 @@ import io.singularitynet.sdk.plugin.PluginException;
 
 public class GetSingularityNetServiceApi extends DefaultTask implements ServiceApiGetter.Parameters {
 
-
     @Setter
     private String orgId;
     @Setter

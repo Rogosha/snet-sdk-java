@@ -1,19 +1,13 @@
 package io.singularitynet.sdk.mpe;
 
 import java.math.BigInteger;
-import java.util.Collections;
-import java.util.List;
 
-import io.singularitynet.sdk.common.Utils;
-import org.web3j.abi.datatypes.Int;
 import org.web3j.protocol.core.*;
 import org.web3j.tuples.generated.*;
 import io.singularitynet.sdk.contracts.MultiPartyEscrow;
 
-import static java.util.stream.Collectors.toList;
 import static org.mockito.Mockito.*;
 
-import static io.singularitynet.sdk.common.Utils.*;
 import io.singularitynet.sdk.ethereum.Address;
 
 public class MultiPartyEscrowMock {
